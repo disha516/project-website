@@ -90,7 +90,8 @@ def get_answer_from_tutor(student_query: str, subject: str):
     except Exception as e:
         print("Vector search score extraction error:", e)
 
-    # 3. GEMINI PROMPT & GENERATION
+    
+   # 3. GEMINI PROMPT & GENERATION
     prompt = f"""
     You are an expert IIT-JEE tutor specializing in {subject}.
     
@@ -100,7 +101,10 @@ def get_answer_from_tutor(student_query: str, subject: str):
     Instructions:
     1. Solve the student query step-by-step.
     2. If a database reference is provided above, use its core logic/formula to ground your answer and avoid hallucinations.
-    3. Output the final answer beautifully with clear headers.
+    3. FORMATTING RULE: Write ALL mathematical expressions, equations, formulas, and variables strictly using standard LaTeX. 
+       - Use inline LaTeX with a single dollar sign like $e = mc^2$ for equations within text.
+       - Use block display LaTeX with double dollar signs like $$I = \int_0^\pi \sin(x) \, dx$$ for standalone equations.
+    4. Output the final answer beautifully with clear markdown headers.
     """
 
     response = client.models.generate_content(
