@@ -1,0 +1,39 @@
+
+[
+    {
+        "subject": "Physics",
+        "topic": "Current Electricity",
+        "question_text": "In a potentiometer arrangement, a cell of emf 1.25 V gives a balance point at 35.0 cm length of the wire. If the cell is replaced by another cell and the balance point shifts to 63.0 cm, what is the emf of the second cell?",
+        "solution_steps": "1. Understand the principle of a potentiometer: E1 / E2 = l1 / l2.\n2. Given values: E1 = 1.25 V, l1 = 35.0 cm, l2 = 63.0 cm.\n3. Substitute values into the formula: E2 = E1 * (l2 / l1) = 1.25 * (63.0 / 35.0).\n4. Calculate the value: E2 = 1.25 * 1.8 = 2.25 V.\n5. Final Answer: The emf of the second cell is 2.25 V."
+    },
+    {
+        "subject": "Physics",
+        "topic": "Electrostatics",
+        "question_text": "Three charges each equal to +q are placed at the three corners of an equilateral triangle of side a. Find the net electric force experienced by a particle of charge +Q placed at the centroid of the triangle.",
+        "solution_steps": "1. Identify geometry: The distance from each vertex of an equilateral triangle of side 'a' to its centroid is r = a / \u221a3.\n2. Calculate individual force magnitudes: F = k * (q * Q) / r^2 = 3 * k * q * Q / a^2.\n3. Determine directions: The three forces are equal in magnitude and directed symmetrically outwards from the centroid towards the vertices, separated by angles of 120 degrees from each other.\n4. Apply vector addition: The resultant of three equal vectors acting at 120 degrees to each other is zero due to symmetry.\n5. Final Answer: The net force on the charge at the centroid is 0."
+    },
+    {
+        "subject": "Chemistry",
+        "topic": "Chemical Kinetics",
+        "question_text": "A first-order reaction has a rate constant k = 5.5 \u00d7 10^-14 s^-1. Find the half-life of the reaction.",
+        "solution_steps": "1. State the formula for the half-life of a first-order reaction: t_1/2 = 0.693 / k.\n2. Substitute the given value of rate constant k: t_1/2 = 0.693 / (5.5 \u00d7 10^-14).\n3. Calculate numerical value: t_1/2 = 1.26 \u00d7 10^13 s.\n4. Final Answer: The half-life of the reaction is 1.26 \u00d7 10^13 s."
+    },
+    {
+        "subject": "Chemistry",
+        "topic": "Thermodynamics",
+        "question_text": "For a reaction, enthalpy change (\u0394H) is 400 kJ mol^-1 and entropy change (\u0394S) is 0.2 kJ K^-1 mol^-1. At what temperature will the reaction become spontaneous?",
+        "solution_steps": "1. Use Gibbs Free Energy Equation: \u0394G = \u0394H - T\u0394S.\n2. State spontaneity condition: For a reaction to be spontaneous, \u0394G < 0.\n3. Set up the inequality for threshold equilibrium point (\u0394G = 0): T = \u0394H / \u0394S.\n4. Substitute values: T = 400 / 0.2 = 2000 K.\n5. Final Answer: The reaction will become spontaneous at temperatures above 2000 K."
+    },
+    {
+        "subject": "Mathematics",
+        "topic": "Matrices and Determinants",
+        "question_text": "If A is a square matrix of order 3 such that |A| = 5, then find the value of |adj(A)|.",
+        "solution_steps": "1. State the standard determinant property for adjoint matrices: |adj(A)| = |A|^(n-1), where 'n' is the order of the matrix.\n2. Identify given values: |A| = 5, n = 3.\n3. Substitute values into property equation: |adj(A)| = 5^(3-1) = 5^2 = 25.\n4. Final Answer: The value of |adj(A)| is 25."
+    },
+    {
+        "subject": "Mathematics",
+        "topic": "Definite Integrals",
+        "question_text": "Evaluate the definite integral \u222b from 0 to \u03c0/2 of [sin(x) / (sin(x) + cos(x))] dx.",
+        "solution_steps": "1. Let I = \u222b_0^(\u03c0/2) [sin(x) / (sin(x) + cos(x))] dx.\n2. Apply property \u222b_0^a f(x) dx = \u222b_0^a f(a - x) dx.\n3. Substitute (\u03c0/2 - x) into the integral to get: I = \u222b_0^(\u03c0/2) [cos(x) / (cos(x) + sin(x))] dx.\n4. Add both equations: 2I = \u222b_0^(\u03c0/2) 1 dx = [x]_0^(\u03c0/2) = \u03c0/2.\n5. Solve for I: I = \u03c0/4.\n6. Final Answer: The value of the integral is \u03c0/4."
+    }
+]
