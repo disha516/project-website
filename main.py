@@ -1,45 +1,62 @@
-
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from pymongo import MongoClient
+import os
 from agent_brain import get_answer_from_tutor
 
-app = FastAPI(title="JEE Solver API Server")
+app = FastAPI()
 
-# CORS Settings: Yeh tumhari teammate ke frontend ko tumhare backend se bina security block ke connect karega
+# CORS Setup (Disha ke frontend ko connect rakhne ke liye)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Hackathon ke liye development phase mein sab allow kar dete hain
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Frontend se jo data aayega uska format (Data Contract)
+# MongoDB Setup for Feedback
+db_client = MongoClient(os.getenv("MONGO_URI"))
+db = db_client["jee_solver_db"]
+feedback_collection = db["student_feedback"]
+
+# Pydantic Schemas
 class QueryRequest(BaseModel):
     student_query: str
     subject: str
 
-@app.get("/")
-def home():
-    return {"status": "success", "message": "JEE Backend Server is Running Live!"}
+class FeedbackRequest(BaseModel):
+    student_query: str
+    ai_answer: str
+    status: str  # Isme frontend "thumbs_up" ya "thumbs_down" bhegega
 
 @app.post("/api/ask")
-def ask_tutor(request: QueryRequest):
-    """
-    This endpoint takes the student's query and subject from the frontend,
-    passes it to our MongoDB+Gemini engine, and returns the response.
-    """
+async def ask_tutor(payload: QueryRequest):
     try:
-        print(f" Received query for {request.subject}: {request.student_query}")
+        # get_answer_from_tutor ab do cheezein return karta hai: answer aur confidence
+        answer, confidence = get_answer_from_tutor(payload.student_query, payload.subject)
         
-        # Calling our core engine function
-        ai_response = get_answer_from_tutor(request.student_query, request.subject)
-        
+        # Frontend ko dono cheezein ek JSON mein bhej rahe hain
         return {
-            "status": "success",
-            "backend_status": "Connected to MongoDB Atlas & Gemini",
-            "response": ai_response
+            "answer": answer,
+            "confidence_score": f"{confidence}%"
         }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# 🌟 FEATURE 3: FEEDBACK LOOP ENDPOINT
+@app.post("/api/feedback")
+async def receive_feedback(payload: FeedbackRequest):
+    try:
+        feedback_data = {
+            "student_query": payload.student_query,
+            "ai_answer": payload.ai_answer,
+            "status": payload.status,
+            "timestamp": os.getenv("CURRENT_TIME", "2026") # Simple tracker
+        }
+        # Database mein student ka feedback insert ho raha hai
+        feedback_collection.insert_one(feedback_data)
+        return {"message": "Feedback successfully saved to MongoDB!"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
