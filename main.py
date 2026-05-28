@@ -1,13 +1,15 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
 import os
-from agent_brain import get_answer_from_tutor
+
+# `agent_brain.py` se naya functions import kar rahe hain
+from agent_brain import get_answer_from_tutor 
 
 app = FastAPI()
 
-# CORS Setup (Disha ke frontend ko connect rakhne ke liye)
+# 🌐 CORS Setup (Disha ke frontend ko connect rakhne ke liye)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,28 +18,38 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# MongoDB Setup for Feedback
+# 💾 MongoDB Setup for Feedback
 db_client = MongoClient(os.getenv("MONGO_URI"))
 db = db_client["jee_solver_db"]
 feedback_collection = db["student_feedback"]
 
-# Pydantic Schemas
-class QueryRequest(BaseModel):
-    student_query: str
-    subject: str
-
+# 📝 Pydantic Schema (Sirf Feedback ke liye chahiye ab, kyunki ask Form-Data use karega)
 class FeedbackRequest(BaseModel):
     student_query: str
     ai_answer: str
-    status: str  # Isme frontend "thumbs_up" ya "thumbs_down" bhegega
+    status: str  # Isme frontend "thumbs_up" ya "thumbs_down" bhejega
 
+# 🎯 MULTIMODAL ENDPOINT: /api/ask (Handles Text, Images, and Audio)
 @app.post("/api/ask")
-async def ask_tutor(payload: QueryRequest):
+async def ask_tutor(
+    student_query: str = Form(...),
+    subject: str = Form(...),
+    image: UploadFile = File(None),  # Optional image file
+    audio: UploadFile = File(None)   # Optional audio file
+):
     try:
-        # get_answer_from_tutor ab do cheezein return karta hai: answer aur confidence
-        answer, confidence = get_answer_from_tutor(payload.student_query, payload.subject)
-        
-        # Frontend ko dono cheezein ek JSON mein bhej rahe hain
+        # Files ko bytes mein read karo agar woh exist karti hain
+        image_bytes = await image.read() if image else None
+        audio_bytes = await audio.read() if audio else None
+
+        # `get_answer_from_tutor` ko saare multimodal inputs pass kar do
+        answer, confidence = get_answer_from_tutor(
+            student_query, 
+            subject, 
+            image_bytes=image_bytes, 
+            audio_bytes=audio_bytes
+        )
+
         return {
             "answer": answer,
             "confidence_score": f"{confidence}%"
@@ -45,18 +57,17 @@ async def ask_tutor(payload: QueryRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# 🌟 FEATURE 3: FEEDBACK LOOP ENDPOINT
+# 🌟 FEEDBACK LOOP ENDPOINT: /api/feedback
 @app.post("/api/feedback")
-async def receive_feedback(payload: FeedbackRequest):
+async def save_feedback(payload: FeedbackRequest):
     try:
         feedback_data = {
             "student_query": payload.student_query,
             "ai_answer": payload.ai_answer,
-            "status": payload.status,
-            "timestamp": os.getenv("CURRENT_TIME", "2026") # Simple tracker
+            "status": payload.status
         }
         # Database mein student ka feedback insert ho raha hai
         feedback_collection.insert_one(feedback_data)
-        return {"message": "Feedback successfully saved to MongoDB!"}
+        return {"message": "Feedback successfully saved to MongoDB Cloud!"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
