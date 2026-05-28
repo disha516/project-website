@@ -93,7 +93,7 @@ def get_answer_from_tutor(student_query: str, subject: str, image_bytes=None, au
         except Exception as e:
             print("Vector search score extraction error:", e)
 
-    # 3. GEMINI PROMPT SETUP
+   # 3. GEMINI PROMPT SETUP (Upgraded with Language & Mode Matching)
     prompt = f"""
     You are an expert IIT-JEE tutor specializing in {subject}.
     
@@ -107,7 +107,11 @@ def get_answer_from_tutor(student_query: str, subject: str, image_bytes=None, au
     4. FORMATTING RULE: Write ALL mathematical expressions, equations, formulas, and variables strictly using standard LaTeX. 
        - Use inline LaTeX with a single dollar sign like $e = mc^2$ for equations within text.
        - Use block display LaTeX with double dollar signs like $$I = \int_0^\pi \sin(x) \, dx$$ for standalone equations.
-    5. Output the final answer beautifully with clear markdown headers.
+    5. LANGUAGE & MODE MATCHING RULE (CRITICAL): Maintain the exact same language, tone, and mode used by the student.
+       - If the student asks or speaks in Hinglish/Hindi, explain the conceptual steps in Hinglish/Hindi (while keeping technical terms and LaTeX formulas in standard form).
+       - If the student asks in English, respond fully in English.
+       - Match the depth and medium of the student's query naturally.
+    6. Output the final answer beautifully with clear markdown headers.
     """
 
     # 🌟 NEW MULTIMODAL CONTENTS LIST
