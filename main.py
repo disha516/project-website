@@ -32,7 +32,8 @@ class FeedbackRequest(BaseModel):
 # 🎯 MULTIMODAL ENDPOINT: /api/ask (Handles Text, Images, and Audio)
 @app.post("/api/ask")
 async def ask_tutor(
-    student_query: str = Form(...),
+    student_query: str = Form(None), # Default value None set kar di taaki crash na ho
+    
     subject: str = Form(...),
     image: UploadFile = File(None),  # Optional image file
     audio: UploadFile = File(None)   # Optional audio file

@@ -57,13 +57,17 @@ def search_similar_questions(student_query: str):
     results = list(collection.aggregate(pipeline))
     return results
 
-def get_answer_from_tutor(student_query: str, subject: str, image_bytes=None, audio_bytes=None):
+def get_answer_from_tutor(student_query: str = None, subject: str = "Physics", image_bytes=None, audio_bytes=None):
     """Main function loaded with Caching, Vector Search, Scoring, and Multimodal Support"""
     
-    # Clean text query context or fallback text if image/audio contains the actual question
-    clean_query = student_query.strip() if student_query else "Multimodal request: analyze the attached visual or audio data."
+    # Safe fallback if text query is missing or None
+    safe_query = student_query if student_query is not None else ""
+    clean_query = safe_query.strip()
     
-    # 🌟 FEATURE 1: CACHE CHECK (Sirf pure text queries ke liye optimize karega)
+    if not clean_query:
+        clean_query = "multimodal_media_query"
+
+    # 🌟 FEATURE 1: CACHE CHECK
     cache_key = f"{subject.lower()}_{clean_query.lower()}"
     if not image_bytes and not audio_bytes and cache_key in query_cache:
         print("⚡ [CACHE HIT] Yeh sawal pehle pucha ja chuka hai. Instant response bhej rahe hain!")
@@ -94,7 +98,7 @@ def get_answer_from_tutor(student_query: str, subject: str, image_bytes=None, au
             print("Vector search score extraction error:", e)
 
    # 3. GEMINI PROMPT SETUP (Upgraded with Language & Mode Matching)
-    prompt = f"""
+    prompt = fr"""
     You are an expert IIT-JEE tutor specializing in {subject}.
     
     Student Text Query: {student_query if student_query else "See attached media input."}
