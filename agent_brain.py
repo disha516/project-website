@@ -128,13 +128,19 @@ def get_answer_from_tutor(student_query: str = None, subject: str = "Physics", i
         contents.append(img)
 
     # Handling Audio Data if provided by Disha's Frontend
+   
     if audio_bytes:
         print("🎤 Input Type Detected: Audio/Voice. Binding audio stream for Gemini Listen...")
-        audio_part = {
-            "mime_type": "audio/wav",
-            "data": audio_bytes
-        }
+        
+        # Naye SDK ke liye formal parts format import karna hoga function ke andar hi
+        from google.genai import types
+        
+        audio_part = types.Part.from_bytes(
+            data=audio_bytes,
+            mime_type="audio/wav"
+        )
         contents.append(audio_part)
+        
 
     # Calling the advanced gemini-2.5-flash model which natively supports multimodality
     response = client.models.generate_content(
