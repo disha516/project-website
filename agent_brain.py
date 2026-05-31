@@ -78,8 +78,8 @@ def get_answer_from_tutor(student_query: str = None, subject: str = "Physics", i
     context_data = ""
     confidence_score = 0.0
     
-    # 🌟 FEATURE 2: VECTOR SEARCH (Agar text context available hai tabhi chalega)
-    if student_query:
+    # 🌟 FEATURE 2: VECTOR SEARCH (Sirf tab chalega jab student ne dhang ka text pucha ho)
+    if student_query and len(clean_query) > 3 and clean_query != "multimodal_media_query":
         try:
             similar_docs = search_similar_questions(student_query)
             if similar_docs:
