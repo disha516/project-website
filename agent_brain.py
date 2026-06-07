@@ -22,12 +22,20 @@ collection = db["questions"]
 query_cache = {}
 
 def get_embedding(text: str):
-    """Student ki query ko mathematical vector mein badalne ke liye"""
+    """
+    Student ki query ko mathematical vector mein badalne ke liye.
+    🚀 CRITICAL SAFEGUARD: Strictly slices array to 768 dimensions to prevent
+    MongoDB cluster PlanExecutor errors during semantic vector search.
+    """
     response = client.models.embed_content(
         model="gemini-embedding-001",
         contents=text
     )
-    return response.embeddings[0].values
+    
+    raw_vector = response.embeddings[0].values
+    
+    # HARDCORE ARRAY SLICING: Enforces strict compatibility contract with Atlas Index
+    return raw_vector[:768]
 
 def search_similar_questions(student_query: str):
     """MongoDB vector search chalakar sabse close question aur uska confidence score dhoondne ke liye"""
@@ -56,6 +64,7 @@ def search_similar_questions(student_query: str):
     
     results = list(collection.aggregate(pipeline))
     return results
+
 
 def get_answer_from_tutor(student_query: str = None, subject: str = "Physics", image_bytes=None, audio_bytes=None):
     """Main function loaded with Caching, Vector Search, Scoring, and Multimodal Support"""

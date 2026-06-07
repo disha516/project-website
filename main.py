@@ -1,10 +1,11 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
+from typing import Optional
 import os
 
-# `agent_brain.py` se naya functions import kar rahe hain
+# agent_brain.py se functions import ho rahe hain
 from agent_brain import get_answer_from_tutor 
 
 app = FastAPI()
@@ -23,27 +24,44 @@ db_client = MongoClient(os.getenv("MONGO_URI"))
 db = db_client["jee_solver_db"]
 feedback_collection = db["student_feedback"]
 
-# 📝 Pydantic Schema (Sirf Feedback ke liye chahiye ab, kyunki ask Form-Data use karega)
+# 📝 Pydantic Schema for Feedback
 class FeedbackRequest(BaseModel):
     student_query: str
     ai_answer: str
-    status: str  # Isme frontend "thumbs_up" ya "thumbs_down" bhejega
+    status: str
 
-# 🎯 MULTIMODAL ENDPOINT: /api/ask (Handles Text, Images, and Audio)
+# 🎯 DYNAMIC MULTIMODAL ENDPOINT: Handles both JSON and Form-Data gracefully
 @app.post("/api/ask")
 async def ask_tutor(
-    student_query: str = Form(None), # Default value None set kar di taaki crash na ho
-    
-    subject: str = Form(...),
-    image: UploadFile = File(None),  # Optional image file
-    audio: UploadFile = File(None)   # Optional audio file
+    request: Request,
+    student_query: Optional[str] = Form(None),
+    subject: Optional[str] = Form(None),
+    image: Optional[UploadFile] = File(None),
+    audio: Optional[UploadFile] = File(None)
 ):
     try:
-        # Files ko bytes mein read karo agar woh exist karti hain
+        # 🚀 SMART FALLBACK LAYER: Agar form-data khali hai, toh check karo JSON toh nahi aaya?
+        if not student_query and not subject:
+            # Check context content-type
+            content_type = request.headers.get("content-type", "")
+            if "application/json" in content_type:
+                json_data = await request.json()
+                # Extract details safely
+                student_query = json_data.get("student_query") or json_data.get("query_text")
+                subject = json_data.get("subject") or json_data.get("subject_filter") or "Physics"
+
+        # Content boundary sanity safeguards
+        if not student_query:
+            raise HTTPException(status_code=422, detail="Missing text data payload. Field 'student_query' is required.")
+        
+        if not subject:
+            subject = "Physics" # Default validation guarantee
+
+        # Files safely read over stream buffers
         image_bytes = await image.read() if image else None
         audio_bytes = await audio.read() if audio else None
 
-        # `get_answer_from_tutor` ko saare multimodal inputs pass kar do
+        # Call tutor engine matrix
         answer, confidence = get_answer_from_tutor(
             student_query, 
             subject, 
@@ -55,10 +73,11 @@ async def ask_tutor(
             "answer": answer,
             "confidence_score": f"{confidence}%"
         }
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# 🌟 FEEDBACK LOOP ENDPOINT: /api/feedback
+# 🌟 FEEDBACK LOOP ENDPOINT
 @app.post("/api/feedback")
 async def save_feedback(payload: FeedbackRequest):
     try:
@@ -67,7 +86,6 @@ async def save_feedback(payload: FeedbackRequest):
             "ai_answer": payload.ai_answer,
             "status": payload.status
         }
-        # Database mein student ka feedback insert ho raha hai
         feedback_collection.insert_one(feedback_data)
         return {"message": "Feedback successfully saved to MongoDB Cloud!"}
     except Exception as e:
