@@ -2,9 +2,9 @@ import streamlit as st
 import requests
 
 # Backend API URLs
-API_URL = "http://127.0.0.1:8000/api/ask"
-FEEDBACK_URL = "http://127.0.0.1:8000/api/feedback"
-
+# Backend API URLs
+API_URL = "https://jee-solver-agent.onrender.com/api/ask"
+FEEDBACK_URL = "https://jee-solver-agent.onrender.com/api/feedback"
 # --- Page Configuration ---
 st.set_page_config(page_title="JEE Solver Agent", page_icon="🚀", layout="wide")
 
