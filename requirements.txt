@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+streamlit
+pymongo
+google-genai
+python-multipart
+python-dotenv
+pillow
+requests
+pydantic

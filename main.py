@@ -5,12 +5,12 @@ from pymongo import MongoClient
 from typing import Optional
 import os
 
-# agent_brain.py se functions import ho rahe hain
+
 from agent_brain import get_answer_from_tutor 
 
 app = FastAPI()
 
-# 🌐 CORS Setup (Disha ke frontend ko connect rakhne ke liye)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
