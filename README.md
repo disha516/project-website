@@ -42,15 +42,18 @@ We implemented a fully decoupled architecture for high speed and scalability:
 
 ## 👥 Team & Contributions
 
-### 👩‍💻 Disha
-* **Frontend & UI Engineering:** Designed and built the interactive web application from scratch using Streamlit.
-* **Repository & Deployment:** Managed version control, resolved full-stack integration bugs, and deployed the frontend live on Streamlit Cloud.
-* **Demonstration:** Scripted, directed, and recorded the final product pitch and video demonstration.
 
 ### 👩‍💻 Kiran
 * **Backend Architecture:** Developed the robust and lightweight backend server using FastAPI and deployed it live on Render.
 * **AI & Database:** Handled the Google Gemini 2.5 API integration for multimodal processing and set up MongoDB Cloud for the caching system.
 * **Presentation & Documentation:** Designed the official project presentation (PPT), visualizing the technical system architecture, user flow, and the market impact of our AI tutor.
+
+
+### 👩‍💻 Disha
+* **Frontend & UI Engineering:** Designed and built the interactive web application from scratch using Streamlit.
+* **Repository & Deployment:** Managed version control, resolved full-stack integration bugs, and deployed the frontend live on Streamlit Cloud.
+* **Demonstration:** Scripted, directed, and recorded the final product pitch and video demonstration.
+
 
 ---
 
