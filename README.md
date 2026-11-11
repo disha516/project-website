@@ -18,7 +18,7 @@ Built for the **Google Cloud Rapid Agent Hackathon 2026** with **Google Gemini**
 * **🗣️ Voice & "Hinglish" Support:** Typing math is hard! Users can ask doubts using a microphone in natural Hinglish. The agent matches the student's language and tone, with real-life examples.
 * **📚 Optional Database Grounding:** Text questions can be checked against the MongoDB Atlas question collection. When a relevant reference is retrieved, its solution steps are added as context for Gemini. If no reference is found or retrieval is unavailable, Gemini still attempts to solve the question.
 * **🔎 Internal Retrieval Signal:** The backend returns a database similarity score for diagnostics; it is not displayed as an answer-confidence measure in the student interface.
-* **⚡ In-Memory Latency Cache:** Previously asked questions return instantly, bypassing API limits and reducing response latency to milliseconds.
+* **⚡ In-Memory Query Cache:** Repeated text questions can reuse an answer within the running backend process. Cache entries are process-local and are cleared when the service restarts.
 * **✍️ Textbook-Style Formatting:** Highly readable mathematical derivations using LaTeX and structured explanations.
 * **⭐ Integrated Feedback Loop:** Students can rate each explanation (👍/👎); feedback is submitted to MongoDB.
 * **🎛️ Subject and Difficulty Selection:** Choose Physics, Chemistry, or Mathematics and select Easy, Medium, Hard, or JEE Advanced. The selected subject filters retrieved references, and the selected difficulty guides the explanation.
