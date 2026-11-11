@@ -20,8 +20,6 @@ client = genai.Client(api_key=GEMINI_KEY)
 db_client = MongoClient(
     MONGO_URI,
     connect=True,
-    tls=True,
-    tlsAllowInvalidCertificates=True,
     serverSelectionTimeoutMS=5000
 )
 db = db_client["jee_solver_db"]
