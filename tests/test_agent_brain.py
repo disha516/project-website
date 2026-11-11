@@ -21,6 +21,21 @@ class AgentBrainTests(unittest.TestCase):
         self.assertEqual(len(vector), 768)
         self.assertEqual(vector[-1], 767)
 
+
+    def test_vector_candidates_are_filtered_to_selected_subject(self):
+        candidates = [
+            {"subject": "Physics", "question_text": "physics ref"},
+            {"subject": "Chemistry", "question_text": "chemistry ref"},
+            {"subject": "Mathematics", "question_text": "math ref"},
+        ]
+        fake_collection = SimpleNamespace(aggregate=lambda pipeline: candidates)
+        values = list(range(768))
+        embed_response = SimpleNamespace(embeddings=[SimpleNamespace(values=values)])
+        with patch.object(agent_brain, "collection", fake_collection), \
+             patch.object(agent_brain.client.models, "embed_content", return_value=embed_response):
+            matches = agent_brain.search_similar_questions("rate of reaction", "Chemistry")
+        self.assertEqual([item["subject"] for item in matches], ["Chemistry"])
+
     def test_selected_subject_and_difficulty_reach_solver(self):
         generated = SimpleNamespace(text="A worked solution.")
         with patch.object(agent_brain, "search_similar_questions", return_value=[]) as search, \
