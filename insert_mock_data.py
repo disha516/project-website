@@ -33,7 +33,11 @@ def get_embedding(text: str):
         model="gemini-embedding-001",
         contents=text
     )
-    return response.embeddings[0].values
+    # Match the 768-dimension vector_index configured in MongoDB Atlas.
+    vector = response.embeddings[0].values[:768]
+    if len(vector) != 768:
+        raise ValueError(f"Expected a 768-dimension embedding, received {len(vector)}")
+    return vector
 
 def seed_database():
     print("🚀 Initiating Database Seeding Pipeline...")
