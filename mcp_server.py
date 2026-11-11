@@ -20,7 +20,7 @@ GEMINI_KEY = os.getenv("GEMINI_API_KEY")
 MONGO_URI = os.getenv("MONGO_URI")
 
 client = genai.Client(api_key=GEMINI_KEY)
-db_client = MongoClient(MONGO_URI, tls=True, tlsInsecure=True)
+db_client = MongoClient(MONGO_URI)
 db = db_client["jee_solver_db"]
 collection = db["questions"]
 
