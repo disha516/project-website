@@ -71,8 +71,11 @@ def seed_database():
             )
             
             # Vector extract karo
-            vector = embed_response.embeddings[0].values
-            
+            # Keep stored vectors consistent with the 768-dimension Atlas index
+            vector = embed_response.embeddings[0].values[:768]
+            if len(vector) != 768:
+                raise ValueError(f"Expected a 768-dimension embedding, received {len(vector)}")
+
             # Document mein embedding jodo
             item["question_embedding"] = vector
             
