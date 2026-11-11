@@ -89,7 +89,7 @@ if student_query:
                 st.session_state["last_answer"] = result.get("answer", "")
                 
                 st.success("✅ Solution Ready!")
-                st.info(f"💡 AI Confidence Score: 87.4%")
+                st.info(f"💡 Database Match Score: {result.get('confidence_score', 'Not available')}")
                 st.markdown(result.get("answer", "No answer received."))
             else:
                 st.error(f"Backend Error: {response.text}")
