@@ -31,6 +31,7 @@ def get_embedding(text: str):
 
 def search_similar_questions(student_query: str, subject: str):
     """Retrieve candidates, then select the best candidate belonging to the chosen subject."""
+    print(f"[VECTOR SEARCH] Starting retrieval for subject={subject!r}")
     query_vector = get_embedding(student_query)
     pipeline = [
         {
@@ -53,8 +54,11 @@ def search_similar_questions(student_query: str, subject: str):
         },
     ]
     candidates = list(collection.aggregate(pipeline))
+    print(f"[VECTOR SEARCH] Atlas returned {len(candidates)} candidate(s) before subject filtering")
     normalized_subject = "Mathematics" if subject.lower() in {"maths", "mathematics"} else subject.title()
-    return [doc for doc in candidates if doc.get("subject", "").lower() == normalized_subject.lower()]
+    matches = [doc for doc in candidates if doc.get("subject", "").lower() == normalized_subject.lower()]
+    print(f"[VECTOR SEARCH] Subject={normalized_subject!r}; matching question(s)={len(matches)}")
+    return matches
 
 
 def get_answer_from_tutor(
@@ -77,6 +81,8 @@ def get_answer_from_tutor(
     match_score = 0.0
 
     # "Full AI Engine Fallback" intentionally bypasses vector retrieval.
+    if search_priority == "Full AI Engine Fallback":
+        print("[SOLVER MODE] Full AI Engine Fallback selected; vector retrieval skipped")
     if (
         search_priority == "Vector Database (Fast)"
         and clean_query
@@ -87,6 +93,7 @@ def get_answer_from_tutor(
             if similar_docs:
                 best_match = similar_docs[0]
                 match_score = round(float(best_match.get("score", 0.0)) * 100, 1)
+                print("[SOLVER MODE] Retrieved database context will be supplied to Gemini")
                 context_data = (
                     "Relevant reference from the selected subject's question database:\n"
                     f"Question: {best_match.get('question_text', '')}\n"
@@ -95,6 +102,10 @@ def get_answer_from_tutor(
         except Exception as exc:
             # Retrieval is optional; preserve the Gemini fallback but log the failure for operators.
             print(f"[VECTOR SEARCH UNAVAILABLE] {type(exc).__name__}: {exc}")
+    elif search_priority == "Vector Database (Fast)" and not clean_query:
+        print("[VECTOR SEARCH] Skipped because the request contains no text query")
+    if search_priority == "Vector Database (Fast)" and clean_query and not context_data:
+        print("[SOLVER MODE] No matching database context; Gemini will answer without retrieved PYQ context")
 
     difficulty_guidance = {
         "Easy": "Explain foundational concepts slowly and show each basic step.",
