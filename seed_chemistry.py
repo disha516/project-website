@@ -63,7 +63,11 @@ def seed_chemistry():
                 contents=text_to_embed
             )
             
-            item["question_embedding"] = embed_response.embeddings[0].values
+            # Keep stored vectors consistent with the 768-dimension Atlas index
+            vector = embed_response.embeddings[0].values[:768]
+            if len(vector) != 768:
+                raise ValueError(f"Expected a 768-dimension embedding, received {len(vector)}")
+            item["question_embedding"] = vector
             collection.insert_one(item)
             inserted_count += 1
             print(f"[{inserted_count}/{len(raw_questions)}] Inserted Chemistry: {item['topic']}")
