@@ -21,7 +21,6 @@ db_client = MongoClient(
     MONGO_URI,
     connect=True,
     tls=True,
-    tlsAllowInvalidCertificates=True,
     serverSelectionTimeoutMS=5000
 )
 db = db_client["jee_solver_db"]
@@ -33,7 +32,7 @@ def get_embedding(text: str):
         model="gemini-embedding-001",
         contents=text
     )
-    return response.embeddings[0].values
+    return response.embeddings[0].values[:768]
 
 def seed_database():
     print("🚀 Initiating Database Seeding Pipeline...")
