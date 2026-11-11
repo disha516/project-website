@@ -20,17 +20,31 @@ st.markdown("""
 # ⚙️ SIDEBAR (CONTROL PANEL)
 # ==========================================
 st.sidebar.title("⚙️ Control Panel")
+st.sidebar.markdown("<br>", unsafe_allow_html=True)
+
 selected_subject = st.sidebar.selectbox(
     "📚 Select Subject Module",
     ["Physics", "Chemistry", "Mathematics"]
 )
+selected_difficulty = st.sidebar.select_slider(
+    "🎯 Set Problem Level",
+    options=["Easy", "Medium", "Hard", "JEE Advanced"],
+    value="Easy"
+)
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 📊 System Information")
-st.sidebar.info("🤖 Answer generation: Gemini 2.5 Flash")
-st.sidebar.caption("Reference search uses MongoDB Atlas when relevant database entries are available.")
-st.sidebar.caption("Repeated text questions may be served from an in-memory cache.")
+search_priority = st.sidebar.radio(
+    "🔍 Search Priority",
+    ["Vector Database (Fast)", "Full AI Engine Fallback"]
+)
 
+st.sidebar.markdown("<br>", unsafe_allow_html=True)
+st.sidebar.markdown("### 📊 System Insights")
+st.sidebar.info("🟡 MongoDB Atlas: connection configured; live connectivity needs verification.")
+st.sidebar.info("📚 Grounded Knowledge:\nMongoDB Atlas reference search")
+st.sidebar.warning("⚡ In-Memory Latency Cache:\nActive for repeated text questions")
+
+st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
 st.sidebar.markdown("---")
 st.sidebar.markdown(
     "<p style='font-size: 0.9em; color: #555;'>🔥 Powered by <b>IIT Delhi EE Project Group</b></p>",
