@@ -74,6 +74,9 @@ async def ask_tutor(
             "confidence_score": f"{confidence}%"
         }
         
+    except HTTPException:
+        # Preserve intentional client errors such as the 422 missing-query response.
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
