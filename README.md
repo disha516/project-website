@@ -1,8 +1,8 @@
 # JEE Solver Agent 
 
-> **Your personal JEE tutor — instant, verified, in your language.**
+> **Your AI-powered JEE tutor — step-by-step explanations in your language.**
 
-Late-night JEE preparation often leaves students stuck on complex physics and math problems with no immediate help available. The **JEE Solver Agent** bridges this gap: a 24/7 personalized, human-like tutor that doesn't just give final answers, but breaks down concepts step-by-step using text, voice, and image inputs — with every answer **grounded in a verified PYQ database** so it never hallucinates a formula.
+Late-night JEE preparation often leaves students stuck on complex physics and math problems. The **JEE Solver Agent** helps by generating step-by-step explanations from text, image, and voice inputs. It can also retrieve a relevant reference from the MongoDB question collection when one is available; otherwise, Gemini generates an answer without a retrieved database reference.
 
 Built for the **Google Cloud Rapid Agent Hackathon 2026** with **Google Gemini** + **MongoDB Atlas Vector Search**.
 
@@ -16,12 +16,12 @@ Built for the **Google Cloud Rapid Agent Hackathon 2026** with **Google Gemini**
 
 * **📸 Multimodal Problem Solving:** Students can upload images of complex mechanics or calculus problems — the AI extracts the data via OCR, formats it, and solves it step-by-step.
 * **🗣️ Voice & "Hinglish" Support:** Typing math is hard! Users can ask doubts using a microphone in natural Hinglish. The agent matches the student's language and tone, with real-life examples.
-* **📚 Grounded Knowledge (Verified PYQs):** Every text query first runs a **semantic vector search** over verified JEE Mains & Advanced PYQs in MongoDB Atlas. Matched solutions ground Gemini's answer — high accuracy, exam relevance, no hallucinated formulas.
-* **🎯 Confidence Score:** Students see exactly how strongly their question matched verified material — trust is built into the product.
+* **📚 Optional Database Grounding:** Text questions can be checked against the MongoDB Atlas question collection. When a relevant reference is retrieved, its solution steps are added as context for Gemini. If no reference is found or retrieval is unavailable, Gemini still attempts to solve the question.
+* **🔎 Internal Retrieval Signal:** The backend returns a database similarity score for diagnostics; it is not displayed as an answer-confidence measure in the student interface.
 * **⚡ In-Memory Latency Cache:** Previously asked questions return instantly, bypassing API limits and reducing response latency to milliseconds.
 * **✍️ Textbook-Style Formatting:** Highly readable mathematical derivations using LaTeX and structured explanations.
-* **⭐ Integrated Feedback Loop:** Students rate every explanation (👍/👎); feedback is stored in MongoDB to evaluate and improve teaching quality.
-* **🎛️ Session Personalization:** Pre-select your study module (Physics/Chemistry/Maths) and difficulty level (up to JEE Advanced) for targeted responses.
+* **⭐ Integrated Feedback Loop:** Students can rate each explanation (👍/👎); feedback is submitted to MongoDB.
+* **🎛️ Subject Selection:** Choose Physics, Chemistry, or Mathematics before submitting a question.
 * **🔌 Official MCP Server:** The verified PYQ knowledge base is exposed as a **Model Context Protocol** tool (`query_jee_database`) — any MCP-compatible agent can plug into it.
 
 ---
@@ -34,7 +34,7 @@ flowchart TB
     B["🖥️ Streamlit App"]
     C["🧠 Agent Brain — FastAPI + Python"]
     D{"🔍 Similar verified question in our MongoDB database?"}
-    E["✅ Verified solution guides Gemini + confidence score"]
+    E["📚 Retrieved reference is added as context"]
     F["🤖 Gemini 2.5 Flash solves it live, step by step"]
     G["📐 Answer in student's own language with LaTeX math"]
     H["👍👎 Feedback saved to MongoDB"]
@@ -56,15 +56,15 @@ flowchart TB
     style H fill:#eceff1,stroke:#607d8b,color:#1a1a1a
 ```
 
-**In one line:** the agent first checks a database of *verified* JEE solutions — if it finds a match, that real solution keeps Gemini honest; if not, Gemini solves it fresh. Either way, the student gets step-by-step math in their own language.
+**In one line:** the agent can retrieve a relevant database reference to provide extra context; if no reference is available, Gemini attempts the question directly. The student receives a step-by-step explanation in their own language.
 
 **How a query flows:**
 
-1. **Student asks** — selects module/difficulty, then types a doubt, uploads a photo, or records a voice note in the Streamlit UI.
+1. **Student asks** — selects a subject, then types a doubt, uploads a photo, or records a voice note in the Streamlit UI.
 2. **Smart cache check** — repeated text questions return instantly from the in-memory cache.
-3. **The brain searches** — the question is converted into a 768-dimension embedding and matched against verified PYQs in **MongoDB Atlas Vector Search**.
-4. **Match found?** The verified solution *grounds* Gemini's answer (no hallucinated formulas), with a confidence score shown to the student.
-5. **No match?** Gemini 2.5 Flash solves it live, step by step.
+3. **Optional reference search** — eligible text queries are converted into a 768-dimension embedding and searched in **MongoDB Atlas Vector Search**.
+4. **Reference found?** Its question and solution steps are added to Gemini's prompt as context. The similarity score is kept in the API response for diagnostics and is not shown as a student-facing confidence score.
+5. **No reference or retrieval unavailable?** Gemini 2.5 Flash still attempts to solve the question step by step.
 6. **Answer delivered** — in the student's own language (English/Hindi/Hinglish), beautifully formatted with LaTeX math.
 7. **Student rates the answer** — 👍/👎 feedback is saved to MongoDB for future improvement.
 
