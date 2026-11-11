@@ -46,12 +46,12 @@ async def ask_tutor(
     audio: Optional[UploadFile] = File(None),
 ):
     try:
-        if not student_query and not subject and "application/json" in request.headers.get("content-type", ""):
+        if "application/json" in request.headers.get("content-type", ""):
             json_data = await request.json()
-            student_query = json_data.get("student_query") or json_data.get("query_text")
-            subject = json_data.get("subject") or json_data.get("subject_filter") or "Physics"
-            difficulty = json_data.get("difficulty") or "Easy"
-            search_priority = json_data.get("search_priority") or "Vector Database (Fast)"
+            student_query = student_query or json_data.get("student_query") or json_data.get("query_text")
+            subject = subject or json_data.get("subject") or json_data.get("subject_filter")
+            difficulty = json_data.get("difficulty") or difficulty
+            search_priority = json_data.get("search_priority") or search_priority
 
         subject = subject or "Physics"
         difficulty = difficulty or "Easy"
